@@ -96,7 +96,7 @@ const ja: typeof en = {
 };
 const zh: typeof en = { ...workflowZh, ...uiZh };
 export const dictionaries = { en, ja, zh };
-export type PartGroup = 'head' | 'eyes' | 'mouth' | 'face' | 'cheeks' | 'strands' | 'buns' | 'accessories' | 'body' | 'hand' | 'mesh' | 'view';
+export type PartGroup = 'head' | 'eyes' | 'mouth' | 'face' | 'cheeks' | 'strands' | 'buns' | 'accessories' | 'body' | 'hand' | 'rigid' | 'mesh' | 'view';
 const partText: Record<Language, Record<PartGroup, [string, string, string]>> = {
   zh: partsZh,
   en: {
@@ -110,6 +110,7 @@ const partText: Record<Language, Record<PartGroup, [string, string, string]>> = 
     accessories: ['Accessories', 'Pendulum parts such as tassels.', 'Place the pivot where the accessory attaches and the tip at its lowest point.'],
     body: ['Body', 'Breathing and body sway.', 'Keep the rotation pivot low and place the breathing region over the chest.'],
     hand: ['Hand', 'Hand outline and arm joints.', 'Trace the hand outline, then place the wrist and elbow joints.'],
+    rigid: ['Rigid parts', 'Held objects that move as one piece.', 'Trace around the object and the hand holding it, then place the anchor on the grip.'],
     mesh: ['Mesh', 'Mesh density.', 'Smaller cells add detail around the face but take more time to render.'],
     view: ['Framing', 'Preview margins.', 'Adjust the margins so the head and accessories stay inside the preview.'],
   },
@@ -124,6 +125,7 @@ const partText: Record<Language, Record<PartGroup, [string, string, string]>> = 
     accessories: ['飾り', '房飾りなどの振り子。', '付け根に支点を置き、いちばん下に先端を合わせてください。'],
     body: ['体', '呼吸と体の揺れ。', '回転の支点を低い位置に置き、呼吸の範囲を胸に合わせてください。'],
     hand: ['手', '手の輪郭と腕の関節。', '手の輪郭をなぞってから、手首と肘の位置を合わせてください。'],
+    rigid: ['固定パーツ', '一体で動く持ち物。', '持ち物と持っている手を囲んでから、握っている位置に基準点を置いてください。'],
     mesh: ['メッシュ', 'メッシュの細かさ。', '格子を細かくすると顔の表現が細かくなりますが、描画の負荷が増えます。'],
     view: ['表示範囲', 'プレビューの余白。', '頭や飾りがプレビューからはみ出さないように余白を調整してください。'],
   },

@@ -68,11 +68,12 @@ const schema = (draft: boolean) => object({
     elbow: point, wrist: point, knuckle: point, contact: point, forearmShare: unit,
     armBand: band, wristBand: band, handBand: band, fingerXBand: band,
     fingerYBand: band, pinBand: band }),
+  rigid: array(object({ name: string, outline: polygon, anchor: point })),
   mesh: object({ baseCell: integer, fine: object({ x0: wholeNumber, x1: wholeNumber,
     y0: wholeNumber, y1: wholeNumber, cell: integer }), handCell: integer,
     tasselCell: integer, eyeBallCell: integer, eyeCell: integer, spriteCell: integer }),
   view: object({ padTop: number, padSide: number, gazeCenter: point }, ['gazeCenter']),
-}, ['buns', 'strands', 'accessories', 'hand']);
+}, ['buns', 'strands', 'accessories', 'hand', 'rigid']);
 
 export function validateRig(value: unknown, options: { draft?: boolean } = {}): string[] {
   const errors: string[] = [];
@@ -104,6 +105,10 @@ export function validateRig(value: unknown, options: { draft?: boolean } = {}): 
     if (accessory.pivot.every((n, k) => n === accessory.tip[k])) errors.push(`rig.accessories[${i}].tip: must differ from pivot`);
     if (accessory.box[0] >= accessory.box[2] || accessory.box[1] >= accessory.box[3]) errors.push(`rig.accessories[${i}].box: rectangle must have positive area`);
   }
+  const rigidNames = (rig.rigid ?? []).map(part => part.name);
+  rigidNames.forEach((name, i) => {
+    if (rigidNames.indexOf(name) !== i) errors.push(`rig.rigid[${i}].name: must be unique`);
+  });
   return errors;
 }
 

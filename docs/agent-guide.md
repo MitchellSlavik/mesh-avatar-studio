@@ -65,7 +65,8 @@ Look at the full grid image and write down, in your notes to the person:
 - which optional parts exist: hand near the face, hair buns, hanging accessories
   (tassels, earrings), long hair over the shoulders;
 - anything the rig cannot represent yet (hats, glasses, objects held in front of the face).
-  Tell the person these will move rigidly with the head or body.
+  Tell the person these will move rigidly with the head or body. A held object beside the face
+  bends with head tilts unless it gets a `rigid` part.
 
 ## Step 3 — Draft the rig
 
@@ -86,6 +87,7 @@ uv run tools/grid.py projects/<name> --region x0,y0,x1,y1 --step 10 --out projec
 | strands | One polyline per visible hair lock that should sway, root to tip, 4 nodes. Bangs: 3–5 locks. Side hair: 2 per side. |
 | body | Chest ellipse, one ellipse per shoulder, breath band from the upper chest to the bottom. |
 | buns, accessories, hand | Only if present. |
+| rigid | Optional, for a held object that crosses the head or body fades (a fan or sign beside the face). Outline the object and its hand, with background margin; anchor on the grip. |
 | mesh, view | Start from the values in `samples/miko-qipao/rig.json`; set `mesh.fine` to a rectangle around the face and hair. |
 
 Leave `eyes[*].x0/x1/top/bot` out of the draft; the layer builder computes them.

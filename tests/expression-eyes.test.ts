@@ -10,14 +10,21 @@ const defaults = Object.fromEntries(PARAMS.map(p => [p.id, p.def]));
 const physics = { strands: [], bunL: [0, 0], bunR: [0, 0] };
 
 // Minimal renderer: records each sprite layer so the visible drawings can be read back.
-function sprites(names: string[]) {
+function create(names: string[]) {
   const layers = new Map<string, { visible: boolean; alpha: number }>();
   const renderer = { addLayer(name: string) { const layer = { visible: false, alpha: 1 }; layers.set(name, layer); return layer; } };
   const sheet = { build: 'test', layers: Object.fromEntries(names.map(name => [name, [500, 400, 10, 10]])) };
   const images = Object.fromEntries(names.map(name => [name, { width: 10 }]));
   const grid = (rect: number[]) => ({ rest: [rect[0], rect[1]], pos: [0, 0] });
-  type Create = (...args: unknown[]) => { update(P: Record<string, number>, phys: unknown, dt: number, mood?: string | null): { eyes: boolean[] } };
-  const update = (createSpriteModule(engine, rig).createSprites as unknown as Create)(renderer, sheet, images, grid, () => new Uint8Array(1));
+  type Create = (...args: unknown[]) => {
+    drawn: { eyes: boolean[]; mouth: boolean };
+    update(P: Record<string, number>, phys: unknown, dt: number, mood?: string | null): { eyes: boolean[] };
+  };
+  return { layers, module: (createSpriteModule(engine, rig).createSprites as unknown as Create)(renderer, sheet, images, grid, () => new Uint8Array(1)) };
+}
+
+function sprites(names: string[]) {
+  const { layers, module: update } = create(names);
   return (open: number, mood: string | null = null, dt = 1, mouthOpen = 0) => {
     const result = update.update({ ...defaults, eyeROpen: open, eyeLOpen: open, eyeSmile: 0, eyeSmileL: 0, mouthOpen }, physics, dt, mood);
     return { covered: result.eyes, shown: [...layers].filter(([, layer]) => layer.visible && layer.alpha > 0).map(([name]) => name).sort() };
@@ -80,4 +87,20 @@ test('without open mouth drawings the expression mouth stays while speaking', ()
   const frame = sprites(['mouth_sad']);
   expect(frame(1, 'sad', 1, 0.5).shown).toEqual(['mouth_sad']);
   expect(frame(1, 'angry', 1, 0).shown).toEqual([]);
+});
+
+test('avatars with only drawn mouths keep the layered eyes for blinks', () => {
+  const mouths = ['mouth_a', 'mouth_a_half', 'mouth_i', 'mouth_o'];
+  expect(create(mouths).module.drawn).toEqual({ eyes: [false, false], mouth: true });
+  const frame = sprites(mouths);
+  expect(frame(0.1)).toEqual({ covered: [false, false], shown: [] });
+  expect(frame(0.5)).toEqual({ covered: [false, false], shown: [] });
+  expect(frame(1, null, 1, 0.8).shown).toEqual(['mouth_a']);
+});
+
+test('avatars with only drawn eyes keep the shader mouth', () => {
+  expect(create(eyes('closed', 'half', 'smile')).module.drawn).toEqual({ eyes: [true, true], mouth: false });
+  expect(create(['mouth_sad']).module.drawn.mouth).toBe(false);
+  expect(create([...eyes('closed', 'half', 'smile'), 'mouth_a', 'mouth_a_half', 'mouth_i', 'mouth_o']).module.drawn)
+    .toEqual({ eyes: [true, true], mouth: true });
 });

@@ -136,9 +136,29 @@ export function createRig(rig) {
     return hits.map(([i, g, t]) => [i, hair * g / norm * sstep(0.04, 0.55, t), t]);
   }
 
+  // Rigid parts (a held fan, a sign): optional outlines whose vertices all move like the
+  // part's anchor, so the part turns and shifts as one piece instead of bending with the
+  // height-based head and body fades.
+  const RIGID = rig.rigid ?? [];
+
+  function insidePolygon(x, y, poly) {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [xi, yi] = poly[i], [xj, yj] = poly[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  }
+
   // Per-vertex weights of the base layer, computed once from the rest position.
   // hair: 0..1 from hairmask.png, so strands only move actual hair.
   function baseWeights(x, y, hair = 1) {
+    const part = RIGID.find(r => insidePolygon(x, y, r.outline));
+    if (part) return { ...pointWeights(part.anchor[0], part.anchor[1], 0), anchor: part.anchor };
+    return pointWeights(x, y, hair);
+  }
+
+  function pointWeights(x, y, hair) {
     return {
       head: headWeight(x, y),
       turn: turnWeight(x, y),
@@ -198,7 +218,19 @@ export function createRig(rig) {
   }
 
   // Base layer: hair and face-part offsets are added in rest space, then head, then body.
+  // A rigid part's vertex rides on its anchor: the anchor is deformed as usual and the vertex
+  // keeps its rest offset from it, turned by the anchor's head and body roll.
   function deformBase(x, y, w, P, phys, out) {
+    if (!w.anchor) return deformPoint(x, y, w, P, phys, out);
+    const [ax, ay] = w.anchor;
+    deformPoint(ax, ay, w, P, phys, out);
+    const a = -P.angleZ / 30 * HEAD.maxRoll * w.head - P.bodyAngleZ / 10 * BODY.maxRoll * (1 - sstep(...BODY.rollBand, ay));
+    const c = Math.cos(a), s = Math.sin(a), dx = x - ax, dy = y - ay;
+    out[0] += dx * c - dy * s; out[1] += dx * s + dy * c;
+    return out;
+  }
+
+  function deformPoint(x, y, w, P, phys, out) {
     const p = out;
     p[0] = x; p[1] = y;
     const g = phys.gain;

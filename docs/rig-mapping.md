@@ -16,6 +16,7 @@ spring/motion tuning remain engine behavior constants.
 | strands | rig.js STRANDS |
 | accessories | rig.js TASSELS, build_layers.py search boxes and redness thresholds |
 | hand | rig.js bones, FOREARM_SHARE and weight bands; build_layers.py HAND_POLY, JAW_VISIBLE, JAW_X, BG_BEHIND_HAND |
+| rigid | rig.js baseWeights (anchor weights for vertices inside the outline) and deformBase (anchor motion plus its roll) |
 | mesh | createMeshAvatar.js layer cell sizes and fine rectangle; sprites.js sprite cell |
 | view | createMeshAvatar.js padTop/padSide defaults |
 | view.gazeCenter (optional) | motion.js pointer-follow origin; defaults to head center when omitted |

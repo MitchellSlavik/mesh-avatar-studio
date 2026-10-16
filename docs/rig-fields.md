@@ -10,7 +10,7 @@ radii and mesh cell sizes must be positive. Mesh cell sizes and fine-mesh rectan
 coordinates must be integers. Accessory boxes must be integer rectangles inside the image. A band is `[start, end]` with `start < end`.
 Ellipses are smooth influence regions, not hard cut-out boundaries.
 
-Only `buns`, `strands`, `accessories`, `hand` and `view.gazeCenter` are optional. Omit absent
+Only `buns`, `strands`, `accessories`, `hand`, `rigid` and `view.gazeCenter` are optional. Omit absent
 optional groups. Required regions must still be placed even if their animation will be small.
 The initial draft has empty eye polygons and is intentionally invalid until they are traced.
 See [agent-guide.md](agent-guide.md) for the process and [rig-mapping.md](rig-mapping.md) for
@@ -132,6 +132,9 @@ the engine mapping. Do not copy the example illustration's coordinates into a ne
 | `hand.fingerXBand` | X range, px, increasing finger influence toward image-right. |
 | `hand.fingerYBand` | Y range, px, fading finger influence toward bottom. |
 | `hand.pinBand` | Y range, px, increasing lower arm anchoring toward image bottom. |
+| `rigid[*].name` | Unique label for a part that moves as one piece, such as a held fan or sign. |
+| `rigid[*].outline` | Polygon `[x,y]` points, px; surround the object and the hand holding it. Leave about two mesh cells of empty background outside the object where possible, so no mesh cell spans its edge. |
+| `rigid[*].anchor` | `[x,y]` point, px, the part follows: usually the grip. The part moves and rotates like this point and does not bend with the height-based head and body fades. |
 | `mesh.baseCell` | Coarse base-layer cell spacing, px; example `14`. |
 | `mesh.fine.x0` | Face/hair refinement rectangle left x, px; enclose moving features. |
 | `mesh.fine.x1` | Refinement rectangle right x, px; greater than x0. |

@@ -24,6 +24,11 @@ export interface Accessory {
   box: [number, number, number, number];
   color: { redness: number; minRed: number };
 }
+export interface RigidPart {
+  name: string;
+  outline: Point[];
+  anchor: Point;
+}
 export interface Hand {
   outline: Point[];
   jaw: Point[];
@@ -66,6 +71,7 @@ export interface Rig {
   strands?: Strand[];
   accessories?: Accessory[];
   hand?: Hand;
+  rigid?: RigidPart[];
   mesh: {
     baseCell: number;
     fine: { x0: number; x1: number; y0: number; y1: number; cell: number };

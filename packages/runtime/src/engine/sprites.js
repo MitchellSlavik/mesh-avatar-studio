@@ -104,6 +104,12 @@ export function createSpriteModule(engine, rig) {
       layer.visible = false;
       items[name] = { mesh, W, inner, layer };
     }
+    // Which parts have drawings. A part without them keeps the layered / shader animation,
+    // so an avatar with only drawn mouths still blinks and one with only drawn eyes still talks.
+    const drawnParts = {
+      eyes: [0, 1].map(i => Object.keys(items).some(n => n.startsWith('eyes_') && n.endsWith(`_${i}`))),
+      mouth: Object.values(MOUTH_SHAPES).some(s => items[s.sprite]),
+    };
     const tmp = [0, 0];
     let lastShape = null;
     const eyeState = [0, 1].map(() => ({ cur: 'open', prev: 'open', t: 1 }));
@@ -125,6 +131,7 @@ export function createSpriteModule(engine, rig) {
     }
 
     return {
+      drawn: drawnParts,
       /**
        * Show / hide and deform the sprites for this frame.
        * Returns which eyes are covered by a sprite, so the layered eye parts can be hidden.
@@ -165,7 +172,7 @@ export function createSpriteModule(engine, rig) {
           if (st.t >= 1) show(st.cur, 1);
           else if (rank(st.cur) > rank(st.prev)) { show(st.prev, 1); show(st.cur, k); }
           else { show(st.cur, 1); show(st.prev, 1 - k); }
-          covered[i] = st.cur !== 'open' && k >= 0.999;
+          covered[i] = st.cur !== 'open' && k >= 0.999 && drawnParts.eyes[i];
         });
         const shape = mouthShape(P.mouthOpen, P.mouthForm, lastShape);
         lastShape = shape;
